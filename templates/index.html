@@ -59,8 +59,8 @@
                                     <div class="main-menu d-none d-lg-block">
                                         <nav>
                                             <ul id="navigation">                                                                                          
-                                                <li><a href="index.html">Home</a></li>
-                                                <li><a href="about.html">Sobre Nós</a></li>
+                                                <li><a href="{% url 'index' %}">Home</a></li>
+                                                <li><a href="{% url 'about' %}">Sobre Nós</a></li>
 
                                             </ul>
                                         </nav>
@@ -184,9 +184,9 @@
                        <div class="row d-flex align-items-center">
                            <div class="col-xl-12 ">
                                <div class="footer-copy-right text-center">
-                                   <p><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                                   <p>
                                       Copyright &copy;<script>document.write(new Date().getFullYear());</script></a>
-                                      <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
+                                    </p>
                                   </div>
                               </div>
                           </div>
