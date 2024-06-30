@@ -50,5 +50,5 @@ def register(request):
 @login_required(login_url='login')
 @profile_user
 def profile(request, context_dict):
-    return render(request, 'profile.html')
+    return render(request, 'profile.html', context_dict)
 
