@@ -1,12 +1,15 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
 from django.contrib.auth import authenticate, login as auth_login
 from django.shortcuts import render, redirect
 from allauth.account.signals import user_logged_in
 from django.dispatch import receiver
 from django.http import HttpResponseRedirect, JsonResponse
+from django.core.files.storage import FileSystemStorage
 from django.urls import reverse
 from home.decorator import *
 from home.forms import *
+from django.contrib import messages
 
 
 def index(request):
@@ -50,5 +53,35 @@ def register(request):
 @login_required(login_url='login')
 @profile_user
 def profile(request, context_dict):
+    if request.method == 'POST':
+        profile_form = ProfileForm(request.POST, request.FILES)
+        if profile_form.is_valid():
+            profile = context_dict['profile']
+
+            profile.name = profile_form.cleaned_data['name']
+            profile.about = profile_form.cleaned_data['about']
+            profile.job = profile_form.cleaned_data['job']
+            profile.country = profile_form.cleaned_data['country']
+            profile.address = profile_form.cleaned_data['address']
+            profile.phone = profile_form.cleaned_data['phone']
+            profile.email = profile_form.cleaned_data['email']
+            profile.facebook = profile_form.cleaned_data['facebook']
+            profile.instagram = profile_form.cleaned_data['instagram']
+            profile.linkedin = profile_form.cleaned_data['linkedin']
+
+            profile.profile_photo = profile_form.cleaned_data['profile_photo']
+
+            profile.save()
+            messages.success(request, 'Alterações do perfil salvas com sucesso!')
+            return redirect('profile')
+        else:
+            messages.error(request, 'Erro no formulário!')
+    else:
+        profile_form = ProfileForm(profile=context_dict['profile'])
+    context_dict['profile_form'] = profile_form
     return render(request, 'profile.html', context_dict)
 
+
+def quick_logout(request):
+    logout(request)
+    return redirect('index')

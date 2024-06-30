@@ -1,7 +1,12 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 import re
+from django.template.defaultfilters import filesizeformat
+from django.core.validators import FileExtensionValidator
+from django.utils.translation import gettext_lazy as _
 
 ### FORM DO LOGIN
 class LoginForm(forms.Form):
@@ -67,3 +72,103 @@ class RegisterForm(forms.Form):
             raise forms.ValidationError("Passwords do not match.")
 
         return cleaned_data
+    
+    
+def get_country_choices():
+    choices = [('', '(Vazio)')]
+    with open('countries.txt') as file: 
+        countries = file.readlines()
+    for country in countries:
+        choices.append((country.strip(), country.strip()))
+    return choices
+
+def validate_facebook_url(value):
+    if not re.match(r'^https?://(www\.)?facebook.com/', value):
+        raise ValidationError('A URL deve ser do Facebook.')
+
+def validate_instagram_url(value):
+    if not re.match(r'^https?://(www\.)?instagram.com/', value):
+        raise ValidationError('A URL deve ser do Instagram.')
+
+def validate_linkedin_url(value):
+    if not re.match(r'^https?://(www\.)?linkedin.com/', value):
+        raise ValidationError('A URL deve ser do LinkedIn.')
+    
+def validate_file_size(value):
+    filesize = value.size
+    if filesize > 200 * 1024:  # 200KB
+        raise ValidationError(_('O arquivo enviado possui %(filesize)s. O tamanho máximo permitido é de 200KB.'),params={'filesize': filesizeformat(filesize)},)
+
+class ProfileForm(forms.Form):
+    name = forms.CharField(label='Nome',
+                           max_length=100,
+                           widget=forms.TextInput(attrs={'class': 'form-control'}))
+    
+    about = forms.CharField(label='Sobre',
+                            required=False,
+                            widget=forms.Textarea(attrs={'class': 'form-control', 'style': 'height: 100px'}))
+    
+    job = forms.CharField(label='Ocupação',
+                          required=False,
+                          max_length=100,
+                          widget=forms.TextInput(attrs={'class': 'form-control'}))
+    
+    country = forms.ChoiceField(label='País',
+                                choices=get_country_choices(),
+                                widget=forms.Select(attrs={'class': 'form-control'}))
+    
+    address = forms.CharField(label='Endereço de Residência',
+                              required=False,
+                              max_length=100,
+                              widget=forms.TextInput(attrs={'class': 'form-control'}))
+    
+    phone = forms.CharField(label='Telefone',
+                            required=False,
+                            max_length=20,
+                            widget=forms.TextInput(attrs={'class': 'form-control'}))
+    
+    email = forms.EmailField(label='E-mail',
+                             required=False,
+                             widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    
+    facebook = forms.URLField(label='Perfil Facebook',
+                              required=False,
+                              validators=[validate_facebook_url, URLValidator()],
+                              widget=forms.URLInput(attrs={'class': 'form-control'}))
+    
+    instagram = forms.URLField(label='Perfil Instagram',
+                               required=False,
+                               validators=[validate_instagram_url, URLValidator()],
+                               widget=forms.URLInput(attrs={'class': 'form-control'}))
+    
+    linkedin = forms.URLField(label='Perfil LinkedIn',
+                              required=False,
+                              validators=[validate_linkedin_url, URLValidator()],
+                              widget=forms.URLInput(attrs={'class': 'form-control'}))
+    
+    profile_photo = forms.ImageField(label='Foto do Perfil',
+                                     required=False,
+                                     widget=forms.FileInput(attrs={'class': 'd-none', 'type':"file", 'name': "profile_photo", 'id': "id_profile_photo", 'accept': 'image/jpeg, image/png, image/jpg'}))
+    
+    def clean_profile_photo(self):
+        profile_photo = self.cleaned_data.get('profile_photo', False)
+        if profile_photo:
+            result = validate_file_size(profile_photo)
+        return profile_photo
+
+    def __init__(self, *args, **kwargs):
+        profile = kwargs.pop('profile', None)
+        super(ProfileForm, self).__init__(*args, **kwargs)
+
+        if profile:
+            self.fields['name'].initial = profile.name
+            self.fields['about'].initial = profile.about
+            self.fields['job'].initial = profile.job
+            self.fields['country'].initial = profile.country
+            self.fields['address'].initial = profile.address
+            self.fields['phone'].initial = profile.phone
+            self.fields['email'].initial = profile.email
+            self.fields['facebook'].initial = profile.facebook
+            self.fields['instagram'].initial = profile.instagram
+            self.fields['linkedin'].initial = profile.linkedin
+            self.fields['profile_photo'].initial = profile.profile_photo

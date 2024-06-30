@@ -34,6 +34,7 @@ class PlantedTree(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(AuthUser, on_delete=models.CASCADE)
     google_account = models.OneToOneField(SocialAccount, on_delete=models.CASCADE, blank=True, null=True)
+    name = models.CharField(max_length=255, blank=True, null=True)
     about = models.TextField()
     joined = models.DateTimeField(auto_now_add=True)
     job = models.CharField(max_length=255, blank=True, null=True)
@@ -48,3 +49,15 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+    @property
+    def name_templ(self):
+        return self.name if self.name else self.user.username
+
+    @property
+    def have_social_urls(self):
+        if self.facebook or self.instagram or self.linkedin:
+            return True
+        else:
+            return False
+            

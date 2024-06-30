@@ -22,12 +22,18 @@ def profile_user(func):
                 if user_social_accounts:
                     google_account = user_social_accounts.first()
                     profile.google_account = google_account
+                    profile.name = google_account.extra_data['name']
+                    profile.email = google_account.extra_data['email']
                     profile.save()
             
             context_dict['profile'] = profile
-            if profile.google_account:
+            context_dict['profile_photo_link'] = None
+            context_dict['profile_photo'] = None
+            if profile.profile_photo:
+                context_dict['profile_photo_link'] = profile.profile_photo.url
+            elif profile.google_account:
                 context_dict['profile_photo_link'] = profile.google_account.extra_data['picture']
-                
+            
             if settings.DEBUG == True:
                 return func(request, context_dict, *args, **kwargs)
             else:

@@ -2,12 +2,7 @@
 
 <div class="pagetitle">
   <h1>Perfil</h1>
-  <nav>
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-      <li class="breadcrumb-item active">Profile</li>
-    </ol>
-  </nav>
+
 </div>
 <!-- End Page Title -->
 
@@ -18,15 +13,24 @@
         <div class="card">
           <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
 
-            <img src="{{profile_photo_link}}" alt="Profile" class="rounded-circle">
-            <h2>Kevin Anderson</h2>
-            <h3>Web Designer</h3>
-            <div class="social-links mt-2">
-              <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
-              <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
-              <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
-              <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
-            </div>
+            <img src="{% if profile_photo_link %}{{profile_photo_link}}{% else %}{% static 'assets/img/emptyProfile.png' %}{% endif %}" alt="Profile" class="rounded-circle" style="width: 120px; height: 120px;">
+            <h2>{% if profile.name %}{{profile.name}}{% else %}{{profile.user.username}}{% endif %}</h2>
+            {% if profile.country %}
+              <h3>{{profile.country}}</h3>
+            {% endif %}
+            {% if profile.have_social_urls %}
+              <div class="social-links mt-2">
+                {% if profile.facebook %}
+                  <a href="{{profile.facebook}}" class="facebook" target="_blank"><i class="bi bi-facebook"></i></a>
+                {% endif %}
+                {% if profile.instagram %}
+                  <a href="{{profile.instagram}}" class="instagram" target="_blank"><i class="bi bi-instagram"></i></a>
+                {% endif %}
+                {% if profile.linkedin %}
+                  <a href="{{profile.linkedin}}" class="linkedin" target="_blank"><i class="bi bi-linkedin"></i></a>
+                {% endif %}
+              </div>
+            {% endif %}
           </div>
         </div>
 
@@ -82,183 +86,118 @@
 
             <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
               <!-- Profile Edit Form -->
-              <form>
+              <form action="{% url 'profile' %}" id="profile-form" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row mb-3">
+                  {% if profile_form.errors %}
+                    {% for field, errors in profile_form.errors.items %}
+                      {% for error in errors %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                          <i class="bi bi-exclamation-octagon me-1"></i>
+                          {{error}}
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                      {% endfor %}
+                    {% endfor %}
+                  {% endif %}
+                </div>
+
                 <div class="row mb-3">
                   <label
                     for="profileImage"
                     class="col-md-4 col-lg-3 col-form-label"
-                    >Profile Image</label
+                    >Imagem de Perfil</label
                   >
                   <div class="col-md-8 col-lg-9">
                     <img
-                      src="{% static 'assets/img/profile-img.jpg' %}"
-                      alt="Profile"
-                    />
+                        id="profileImage"
+                        src="{% if profile_photo_link %}{{ profile_photo_link }}{% else %}{% static 'assets/img/emptyProfile.png' %}{% endif %}"
+                        alt="Profile"
+                        class="img-thumbnail"
+                        style="max-width: 200px; max-height: 200px;"
+                      />
                     <div class="pt-2">
-                      <a
-                        href="#"
-                        class="btn btn-primary btn-sm"
-                        title="Upload new profile image"
-                        ><i class="bi bi-upload"></i
-                      ></a>
-                      <a
-                        href="#"
-                        class="btn btn-danger btn-sm"
-                        title="Remove my profile image"
-                        ><i class="bi bi-trash"></i
-                      ></a>
+                        <label for="id_profile_photo" class="btn btn-primary btn-sm" title="Upload new profile image" style="color: white;">
+                            <i class="bi bi-upload"></i> Upload
+                        </label>
+                        {{profile_form.profile_photo}}
+                        <button type="button" class="btn btn-danger btn-sm" title="Remove my profile image" onclick="clearPreviewAndInput()">
+                          <i class="bi bi-trash"></i>
+                      </button>
                     </div>
                   </div>
                 </div>
-
+                <br>
                 <div class="row mb-3">
                   <label for="fullName" class="col-md-4 col-lg-3 col-form-label"
-                    >Full Name</label
+                    >Nome</label
                   >
                   <div class="col-md-8 col-lg-9">
-                    <input
-                      name="fullName"
-                      type="text"
-                      class="form-control"
-                      id="fullName"
-                      value="Kevin Anderson"
-                    />
+                    {{profile_form.name}}
                   </div>
                 </div>
 
                 <div class="row mb-3">
                   <label for="about" class="col-md-4 col-lg-3 col-form-label"
-                    >About</label
+                    >Sobre</label
                   >
                   <div class="col-md-8 col-lg-9">
-                    <textarea
-                      name="about"
-                      class="form-control"
-                      id="about"
-                      style="height: 100px"
-                    >
-Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</textarea
-                    >
-                  </div>
-                </div>
-
-                <div class="row mb-3">
-                  <label for="company" class="col-md-4 col-lg-3 col-form-label"
-                    >Company</label
-                  >
-                  <div class="col-md-8 col-lg-9">
-                    <input
-                      name="company"
-                      type="text"
-                      class="form-control"
-                      id="company"
-                      value="Lueilwitz, Wisoky and Leuschke"
-                    />
+                    {{profile_form.about}}
                   </div>
                 </div>
 
                 <div class="row mb-3">
                   <label for="Job" class="col-md-4 col-lg-3 col-form-label"
-                    >Job</label
+                    >Ocupação</label
                   >
                   <div class="col-md-8 col-lg-9">
-                    <input
-                      name="job"
-                      type="text"
-                      class="form-control"
-                      id="Job"
-                      value="Web Designer"
-                    />
+                    {{profile_form.job}}
                   </div>
                 </div>
 
                 <div class="row mb-3">
                   <label for="Country" class="col-md-4 col-lg-3 col-form-label"
-                    >Country</label
+                    >País</label
                   >
                   <div class="col-md-8 col-lg-9">
-                    <input
-                      name="country"
-                      type="text"
-                      class="form-control"
-                      id="Country"
-                      value="USA"
-                    />
+                    {{profile_form.country}}
                   </div>
                 </div>
 
                 <div class="row mb-3">
                   <label for="Address" class="col-md-4 col-lg-3 col-form-label"
-                    >Address</label
+                    >Endereço Residencial</label
                   >
                   <div class="col-md-8 col-lg-9">
-                    <input
-                      name="address"
-                      type="text"
-                      class="form-control"
-                      id="Address"
-                      value="A108 Adam Street, New York, NY 535022"
-                    />
+                    {{profile_form.address}}
                   </div>
                 </div>
 
                 <div class="row mb-3">
                   <label for="Phone" class="col-md-4 col-lg-3 col-form-label"
-                    >Phone</label
+                    >Telefone</label
                   >
                   <div class="col-md-8 col-lg-9">
-                    <input
-                      name="phone"
-                      type="text"
-                      class="form-control"
-                      id="Phone"
-                      value="(436) 486-3538 x29071"
-                    />
+                    {{profile_form.phone}}
                   </div>
                 </div>
 
                 <div class="row mb-3">
                   <label for="Email" class="col-md-4 col-lg-3 col-form-label"
-                    >Email</label
+                    >E-mail</label
                   >
                   <div class="col-md-8 col-lg-9">
-                    <input
-                      name="email"
-                      type="email"
-                      class="form-control"
-                      id="Email"
-                      value="k.anderson@example.com"
-                    />
+                    {{profile_form.email}}
                   </div>
                 </div>
 
-                <div class="row mb-3">
-                  <label for="Twitter" class="col-md-4 col-lg-3 col-form-label"
-                    >Twitter Profile</label
-                  >
-                  <div class="col-md-8 col-lg-9">
-                    <input
-                      name="twitter"
-                      type="text"
-                      class="form-control"
-                      id="Twitter"
-                      value="https://twitter.com/#"
-                    />
-                  </div>
-                </div>
 
                 <div class="row mb-3">
                   <label for="Facebook" class="col-md-4 col-lg-3 col-form-label"
-                    >Facebook Profile</label
+                    >Perfil Facebook</label
                   >
                   <div class="col-md-8 col-lg-9">
-                    <input
-                      name="facebook"
-                      type="text"
-                      class="form-control"
-                      id="Facebook"
-                      value="https://facebook.com/#"
-                    />
+                    {{profile_form.facebook}}
                   </div>
                 </div>
 
@@ -266,37 +205,25 @@ Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Temp
                   <label
                     for="Instagram"
                     class="col-md-4 col-lg-3 col-form-label"
-                    >Instagram Profile</label
+                    >Perfil Instagram</label
                   >
                   <div class="col-md-8 col-lg-9">
-                    <input
-                      name="instagram"
-                      type="text"
-                      class="form-control"
-                      id="Instagram"
-                      value="https://instagram.com/#"
-                    />
+                    {{profile_form.instagram}}
                   </div>
                 </div>
 
                 <div class="row mb-3">
                   <label for="Linkedin" class="col-md-4 col-lg-3 col-form-label"
-                    >Linkedin Profile</label
+                    >Perfil LinkedIn</label
                   >
                   <div class="col-md-8 col-lg-9">
-                    <input
-                      name="linkedin"
-                      type="text"
-                      class="form-control"
-                      id="Linkedin"
-                      value="https://linkedin.com/#"
-                    />
+                    {{profile_form.linkedin}}
                   </div>
                 </div>
 
                 <div class="text-center">
                   <button type="submit" class="btn btn-primary">
-                    Save Changes
+                    Salvar
                   </button>
                 </div>
               </form>
@@ -453,7 +380,23 @@ Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Temp
   }
 </script> -->
 
+<script type="text/javascript">
+  var profilePic = document.getElementById('profileImage')
+  var inputFile = document.getElementById('id_profile_photo')
+  var clearButton = document.getElementById('clear-preview');
+
+  var reader = new FileReader();
+
+  inputFile.onchange = function(){
+    profilePic.src = URL.createObjectURL(inputFile.files[0])
+  }
+
+  function clearPreviewAndInput() {
+    profilePic.src = "{% static 'assets/img/emptyProfile.png' %}";
+    inputFile.value = '';
+  }
 
 
+</script>
 
 {% endblock %}
