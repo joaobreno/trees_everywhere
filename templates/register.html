@@ -1,5 +1,4 @@
 {% load static %}
-{% load socialaccount %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,7 +6,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Login</title>
+  <title>Cadastro</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -17,9 +16,7 @@
 
   <!-- Google Fonts -->
   <link href="https://fonts.gstatic.com" rel="preconnect">
-  <link
-    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
@@ -29,7 +26,6 @@
   <link href="{% static 'assets/vendor/quill/quill.bubble.css' %}" rel="stylesheet">
   <link href="{% static 'assets/vendor/remixicon/remixicon.css' %}" rel="stylesheet">
   <link href="{% static 'assets/vendor/simple-datatables/style.css' %}" rel="stylesheet">
-  
 
   <!-- Template Main CSS File -->
   <link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
@@ -46,45 +42,13 @@
 <body>
 
   <main>
-    <style>
-      .google-btn {
-            display: inline-block;
-            color: #4285f4;
-            width: 190px;
-            height: 42px;
-            border: 2px solid #4285f4;
-            border-radius: 2px;
-            white-space: nowrap;
-            text-align: center;
-            vertical-align: middle;
-            background-color: transparent;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .google-btn img {
-            width: 18px;
-            height: 18px;
-            margin: 11px;
-            float: left;
-        }
-        .google-btn span {
-            float: left;
-            margin: 11px 0 0 10px;
-            font-size: 14px;
-            letter-spacing: 0.2px;
-            font-family: 'Roboto', sans-serif;
-        }
-        .google-btn:hover {
-            background-color: #4285f4;
-            color: white;
-        }
-    </style>
     <div class="container">
 
       <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
         <div class="container">
           <div class="row justify-content-center">
             <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
-              {% if form.errors %}
+                {% if form.errors %}
                 {% for field, errors in form.errors.items %}
                   {% for error in errors %}
                   <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -107,58 +71,59 @@
                 <div class="card-body">
 
                   <div class="pt-4 pb-2">
-                    <h5 class="card-title text-center pb-0 fs-4">Acesse Sua Conta</h5>
-
-                    <div class="col-12 d-flex justify-content-center">
-                      <a href="{% provider_login_url 'google' %}?next=/" class="google-btn">
-                          <img src="https://cdn-icons-png.flaticon.com/256/2504/2504739.png" alt="Google logo">
-                          <span>Login com Google</span>
-                      </a>
-                    </div>
-                    <br>
-
-                    <div class="col-12">
-                    <p class="text-center small">Digite seu nome de usuário e senha para fazer login.</p>
+                    <h5 class="card-title text-center pb-0 fs-4">Cadastro de Conta</h5>
+                    <p class="text-center small">Insira informações para criar uma conta</p>
                   </div>
 
-                  <form action="{% url 'login' %}" id="login-form" class="row g-3 needs-validation" method="post" novalidate>
+                  <form action="{% url 'register' %}" id="register-form" class="row g-3 needs-validation" method="post" novalidate>
                     {% csrf_token %}
+
+
                     <div class="col-12">
                       <label for="yourUsername" class="form-label">Username</label>
                       <div class="input-group has-validation">
                         <span class="input-group-text" id="inputGroupPrepend">@</span>
-                        {{ form.username }}
-                        <div class="invalid-feedback">Please enter your username.</div>
+                        <!-- <input type="text" name="username" class="form-control" id="yourUsername" required> -->
+                        {{form.username}}
+                        <div class="invalid-feedback">Please choose a username.</div>
                       </div>
                     </div>
 
                     <div class="col-12">
                       <label for="yourPassword" class="form-label">Senha</label>
-                      {{form.password}}
+                      {{form.password1}}
+                      <!-- <input type="password" name="password" class="form-control" id="yourPassword" required> -->
                       <div class="invalid-feedback">Please enter your password!</div>
+                      <div>
+                        <p style="font-size: 10px;margin-top: 2px;">A senha deve ter no mínimo 8 caracteres e não pode conter apenas números.</p>
+                      </div>
                     </div>
 
                     <div class="col-12">
-                      <div class="form-check">
-                        {{form.remember}}
-                        <label class="form-check-label" for="rememberMe">Lembrar-me</label>
+                        <label for="yourPassword" class="form-label">Confirmar Senha</label>
+                        {{form.password2}}
+                        <!-- <input type="password" name="password" class="form-control" id="yourPassword" required> -->
+                        <div class="invalid-feedback">Please enter your password!</div>
                       </div>
+
+                    <!-- <div class="col-12">
+                      <div class="form-check">
+                        <input class="form-check-input" name="terms" type="checkbox" value="" id="acceptTerms" required>
+                        <label class="form-check-label" for="acceptTerms">I agree and accept the <a href="#">terms and conditions</a></label>
+                        <div class="invalid-feedback">You must agree before submitting.</div>
+                      </div>
+                    </div> -->
+                    <div class="col-12">
+                      <button id="submitButton" class="btn btn-primary w-100" type="submit">Criar Conta</button>
                     </div>
                     <div class="col-12">
-                      <button class="btn btn-primary w-100" type="submit">Login</button>
-                    </div>
-                    
-                    </div>
-                    <div class="col-12">
-                      <p class="small mb-0">Tá sem acesso? <a href="{% url 'register' %}">Faça o seu cadastro</a></p>
+                      <p class="small mb-0">Já tem conta? <a href="{% url 'login' %}">Log in</a></p>
                     </div>
                   </form>
 
                 </div>
               </div>
 
-              <div class="credits">
-              </div>
 
             </div>
           </div>
@@ -169,8 +134,7 @@
     </div>
   </main><!-- End #main -->
 
-  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
-      class="bi bi-arrow-up-short"></i></a>
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
   <!-- Vendor JS Files -->
   <script src="{% static 'assets/vendor/apexcharts/apexcharts.min.js' %}"></script>
@@ -185,6 +149,11 @@
   <!-- Template Main JS File -->
   <script src="{% static 'assets/js/main.js' %}"></script>
 
+  <script>
+    document.getElementById("register-form").addEventListener("submit", function() {
+        document.getElementById("submitButton").disabled = true;
+    });
+</script>
 
 </body>
 
