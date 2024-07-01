@@ -39,7 +39,11 @@ Para instalar e executar este projeto localmente, siga os passos abaixo:
 
 4. **Preenchimento do Banco de Dados:**
 
-    - Execute um script para preencher o banco de dados com espécies de árvores, se necessário.
+    - É recomendável que execute um script para preencher o banco de dados com espécies de árvores, para poupar tempo de cadastro de especimes de árvores.
+
+        ```bash
+        python manage.py shell > scripts/populate_trees.py
+        ```
 
 5. **Carga Inicial de Dados (Opcional):**
 
