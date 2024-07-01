@@ -43,7 +43,7 @@ Para instalar e executar este projeto localmente, siga os passos abaixo:
 
 5. **Carga Inicial de Dados (Opcional):**
 
-    - Carregue um dump de banco de dados se desejar iniciar com dados pré-existentes.
+    - Carregue um dump de banco de dados se desejar iniciar com dados pré-existentes, disponível em: https://drive.google.com/drive/folders/1tllns759xIOF20qNSalHYGlhpWjz-gdy?usp=drive_link.
 
 6. **Criar Superusuário:**
 
