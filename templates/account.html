@@ -94,6 +94,7 @@
                             <th scope="col">Usuário</th>
                             <th scope="col">Data Plantio</th>
                             <th scope="col">Idade</th>
+                            <th scope="col">Localização</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -104,6 +105,7 @@
                             <td>{{arvore.user.profile.name_templ}}</td>
                             <td>{{arvore.planted_at_templ}}</td>
                             <td>{{arvore.age}}</td>
+                            <td>{{arvore.location}}</td>
                           </tr>
                           {% endfor %}
       
@@ -195,7 +197,7 @@
                 var lat = parseFloat('{{ tree.latitude }}');
                 var lng = parseFloat('{{ tree.longitude }}');
                 var marker = L.marker([lat, lng])
-                    .bindPopup('{{ tree.description }} está aqui!')
+                    .bindPopup('{{ tree.tree.scientific_name }}')
                     .addTo(markersGroup);
             {% endfor %}
         {% endif %}

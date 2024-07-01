@@ -68,6 +68,10 @@ class PlantedTree(models.Model):
             else:
                 return f'{years} anos'
         return None
+    
+    @property
+    def location(self):
+        return '({0}, {1})'.format(self.latitude, self.longitude)
         
 
 class Profile(models.Model):

@@ -1,6 +1,7 @@
 from django.urls import path, include
 from . import views
 from .autocompletes import *
+from .views import UserPlantedTreesView
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -11,5 +12,6 @@ urlpatterns = [
     path('environment/profile/register/plantedtree', views.edit_planted_tree, name='register-planted-tree'),
     path('environment/profile/edit/plantedtree/<int:id>', views.edit_planted_tree, name='edit-planted-tree'),
     path('environment/account/<int:id>', views.account_view, name='account'),
+    path('api/user-planted-trees/', UserPlantedTreesView.as_view(), name='user-planted-trees'),
     path('logout/', views.quick_logout, name='quick_logout'),
 ]

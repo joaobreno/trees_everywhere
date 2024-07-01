@@ -11,6 +11,10 @@ from home.decorator import *
 from home.forms import *
 from django.contrib import messages
 import datetime
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from .serializers import PlantedTreeSerializer
 
 
 def index(request):
@@ -160,3 +164,13 @@ def account_view(request, context_dict, id):
 def quick_logout(request):
     logout(request)
     return redirect('index')
+
+
+class UserPlantedTreesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        planted_trees = PlantedTree.objects.filter(user=user)
+        serializer = PlantedTreeSerializer(planted_trees, many=True)
+        return Response(serializer.data)

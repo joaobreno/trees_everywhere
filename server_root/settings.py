@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'dal',
     'home',
     'dal_select2',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
