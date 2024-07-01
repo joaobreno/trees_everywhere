@@ -7,6 +7,8 @@ import re
 from django.template.defaultfilters import filesizeformat
 from django.core.validators import FileExtensionValidator
 from django.utils.translation import gettext_lazy as _
+from home.models import *
+from dal import autocomplete
 
 ### FORM DO LOGIN
 class LoginForm(forms.Form):
@@ -172,3 +174,68 @@ class ProfileForm(forms.Form):
             self.fields['instagram'].initial = profile.instagram
             self.fields['linkedin'].initial = profile.linkedin
             self.fields['profile_photo'].initial = profile.profile_photo
+
+
+
+class RegisterPlantedTreeForm(forms.Form):
+
+    # name = forms.ModelMultipleChoiceField(queryset=Tree.objects.all(),
+    #                                       widget=autocomplete.ModelSelect2(url='trees_autocomplete/',
+    #                                                                        attrs={'class': 'form-control', 'type': "text", 'placeholder': "Árvore"}))
+
+    name = forms.CharField(label='Nome',
+                           max_length=100,
+                           widget=forms.TextInput(attrs={'class': 'form-control', 'type': "text", 'placeholder': "Nome (Apelido)"}))
+    
+    especie = forms.ModelChoiceField(required=True,
+                                     queryset=Tree.objects.all(),
+                                     empty_label= '(Selecione a espécie da árvore plantada)',
+                                     widget= forms.Select(attrs={'class':'form-select', 'type': "text", 'placeholder': "Árvore"}))
+    
+
+    data_plantio = forms.CharField(required=True,
+                                   widget=forms.TextInput(attrs={'type':"date", 'class': "form-control", 'placeholder': "Data de Plantio"}))
+    
+    latitude = forms.DecimalField(label='Latitude',
+                                  required=True,
+                                  max_digits=25,
+                                  decimal_places=22,
+                                  widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Latitude'}))
+    
+
+    longitude = forms.DecimalField(label='Longitude',
+                                   required=True,
+                                   max_digits=25,
+                                   decimal_places=22,
+                                   widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Longitude'}))
+    
+    def clean_latitude(self):
+        latitude = self.cleaned_data['latitude']
+        try:
+            float(latitude)  # Tenta converter para float
+        except ValueError:
+            raise ValidationError('Por favor, insira um valor numérico para a latitude.')
+
+        return latitude
+
+    def clean_longitude(self):
+        longitude = self.cleaned_data['longitude']
+        try:
+            float(longitude)  # Tenta converter para float
+        except ValueError:
+            raise ValidationError('Por favor, insira um valor numérico para a longitude.')
+
+        return longitude
+
+
+    def __init__(self, *args, **kwargs):
+        tree = kwargs.pop('tree', None)
+        super(RegisterPlantedTreeForm, self).__init__(*args, **kwargs)
+
+        if tree:
+            self.fields['name'].initial = tree.description
+            self.fields['especie'].initial = tree.tree
+            self.fields['data_plantio'].initial = tree.planted_at.strftime("%Y-%m-%d")
+            self.fields['latitude'].initial = tree.latitude
+            self.fields['longitude'].initial = tree.longitude
+

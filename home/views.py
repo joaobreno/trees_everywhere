@@ -10,6 +10,7 @@ from django.urls import reverse
 from home.decorator import *
 from home.forms import *
 from django.contrib import messages
+import datetime
 
 
 def index(request):
@@ -78,8 +79,59 @@ def profile(request, context_dict):
             messages.error(request, 'Erro no formulário!')
     else:
         profile_form = ProfileForm(profile=context_dict['profile'])
+        
+    trees_registered = PlantedTree.objects.filter(user=request.user)
     context_dict['profile_form'] = profile_form
+    context_dict['planted_trees'] = trees_registered
+    context_dict['number_trees'] = len(trees_registered)
     return render(request, 'profile.html', context_dict)
+
+
+@login_required(login_url='login')
+@profile_user
+def edit_planted_tree(request, context_dict, id=None):
+    tree = get_object_or_404(PlantedTree, pk=id) if id else None
+    if request.method == 'POST':
+        form_tree = RegisterPlantedTreeForm(request.POST)
+        if form_tree.is_valid():
+            if tree:
+                planted_tree = tree
+            else:
+                planted_tree = PlantedTree()
+
+            planted_tree.description = form_tree.cleaned_data['name']
+            planted_tree.tree = form_tree.cleaned_data['especie']
+
+            ### CONVERTER DATA
+            data_plantio = form_tree.cleaned_data['data_plantio']
+            ano, mes, dia = data_plantio.split('-')
+            date_format = datetime.datetime(int(ano), int(mes), int(dia))
+            planted_tree.planted_at = date_format
+
+            ### LOCALIZAÇÃO
+            planted_tree.latitude = form_tree.cleaned_data['latitude']
+            planted_tree.longitude = form_tree.cleaned_data['longitude']
+
+            planted_tree.user = request.user
+
+            planted_tree.save()
+
+            messages.success(request, 'Árvore editada com sucesso!' if tree else 'Árvore cadastrada com sucesso!')
+            return redirect('profile')
+
+        else:
+            messages.error(request, 'Erro no formulário!')
+    else:
+        if tree:
+            form_tree = RegisterPlantedTreeForm(tree=tree)
+            if tree.user != request.user:
+                messages.error(request, 'Você não pode editar esta árvore!')
+                return redirect('profile')
+        else:
+            form_tree = RegisterPlantedTreeForm()
+    context_dict['form_tree'] = form_tree
+    context_dict['tree'] = tree
+    return render(request, 'register-plantedtree.html', context_dict)
 
 
 def quick_logout(request):

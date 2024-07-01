@@ -1,4 +1,7 @@
-{% extends "partials/base.html" %} {% load static %} {% block content %}
+{% extends "partials/base.html" %} {% load static %} 
+{% block title %}Perfil - Trees Everywhere{% endblock %}
+{% block content %}
+
 
 <div class="pagetitle">
   <h1>Perfil</h1>
@@ -82,6 +85,47 @@
           </ul>
           <div class="tab-content pt-2">
             
+            <div class="tab-pane fade show active profile-overview" id="profile-overview">
+              <br>
+              <a href="{% url 'register-planted-tree' %}">
+                <button class="btn btn-primary btn-sm" title="Upload new profile image" style="color: white;"> 
+                  <i class="bi bi-clipboard-plus-fill"></i> Registrar Árvore
+                </button>
+              </a>
+              
+              <hr>
+              <div class="row mb-3">
+                {% if planted_trees %}
+                <p><strong>{{number_trees}} árvore(s) registrada(s).</strong></p>
+                
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th scope="col">#ID</th>
+                      <th scope="col">Descrição</th>
+                      <th scope="col">Espécie</th>
+                      <th scope="col">Data Plantio</th>
+                      <th scope="col">Idade</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for arvore in planted_trees %}
+                    <tr>
+                      <th scope="row">{{arvore.id}}</th>
+                      <td><a href="{% url 'edit-planted-tree' arvore.id %}">{{arvore.description}}</a></td>
+                      <td>{{arvore.tree.scientific_name}}</td>
+                      <td>{{arvore.planted_at_templ}}</td>
+                      <td>{{arvore.age}}</td>
+                    </tr>
+                    {% endfor %}
+
+                  </tbody>
+                </table>
+                {% else %}
+                  <p><i>Nenhuma árvore registrada.</i></p>
+                {% endif %}
+              </div>
+            </div>
             
 
             <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
@@ -101,7 +145,7 @@
                     {% endfor %}
                   {% endif %}
                 </div>
-
+                {% if not profile.google_account %}
                 <div class="row mb-3">
                   <label
                     for="profileImage"
@@ -127,6 +171,7 @@
                     </div>
                   </div>
                 </div>
+                {% endif %}
                 <br>
                 <div class="row mb-3">
                   <label for="fullName" class="col-md-4 col-lg-3 col-form-label"

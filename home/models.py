@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User as AuthUser
 from decimal import Decimal
 from allauth.socialaccount.models import SocialAccount
+from datetime import datetime
+from django.utils import timezone
 
 class Account(models.Model):
     name = models.CharField(max_length=255)
@@ -20,16 +22,40 @@ class Tree(models.Model):
         return self.name
 
 class PlantedTree(models.Model):
-    age = models.IntegerField()
-    planted_at = models.DateTimeField(auto_now_add=True)
+    age = models.IntegerField(blank=True, null=True)
+    description = models.CharField(max_length=255, blank=True, null=True)
+    register = models.DateTimeField(auto_now_add=True, blank=True)
+    planted_at = models.DateTimeField(blank=True)
     user = models.ForeignKey(AuthUser, on_delete=models.CASCADE, related_name='planted_trees')
     tree = models.ForeignKey(Tree, on_delete=models.CASCADE)
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, blank=True, null=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
 
     def __str__(self):
         return '{0} - {1}'.format(self.user.username, self.tree.name)
+    
+    @property
+    def planted_at_templ(self):
+        return self.planted_at.strftime('%d/%m/%Y')
+    
+    @property
+    def age(self):
+        if self.planted_at:
+            now = timezone.now()
+            if timezone.is_naive(self.planted_at):
+                self.planted_at = timezone.make_aware(self.planted_at, timezone.get_current_timezone())
+            time_difference = now - self.planted_at
+
+            days = time_difference.days
+            years = days // 365
+
+            if years < 1:
+                return f'{days} dias'
+            else:
+                return f'{years} anos'
+        return None
+        
 
 class Profile(models.Model):
     user = models.OneToOneField(AuthUser, on_delete=models.CASCADE)

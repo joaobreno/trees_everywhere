@@ -1,0 +1,183 @@
+{% extends "partials/base.html" %} {% load static %} 
+{% block title %}Cadastrar Árvore - Trees Everywhere{% endblock %}
+{% block content %}
+
+<!-- Inclua o CSS do Bootstrap -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+
+<!-- Inclua o CSS do Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+<!-- Inclua o JavaScript do Leaflet -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+    .sub-title {
+        padding: 20px 0 15px 0;
+        font-size: 18px;
+        font-weight: 500;
+        color: #012970;
+        font-family: "Poppins", sans-serif;
+    }
+
+    #map {
+            height: 600px;
+            width: 100%;
+        }
+</style>
+
+<div class="pagetitle">
+  <h1>{% if tree %}Editar{% else %}Cadastrar{% endif %} Árvore Plantada</h1>
+
+</div>
+
+
+<section class="section">
+    <div class="row">
+      <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Formulário</h5>
+
+                <!-- Floating Labels Form -->
+                
+                <form class="row g-3" action="{% if tree %}{% url 'edit-planted-tree' tree.id %}{% else %}{% url 'register-planted-tree' %}{% endif %}" id="planted-tree-form" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                        <!-- <input type="text" class="form-control" id="floatingName" placeholder="Your NamWe"> -->
+                            {{form_tree.name}}
+                        <label for="floatingName">Nome (Apelido)</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                        <!-- <input type="text" class="form-control" id="floatingName" placeholder="Your Name"> -->
+                            {{form_tree.especie}}
+                        <label for="floatingTree">Árvore</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                        {{form_tree.data_plantio}}
+                        <label for="floatingDate">Data de Plantio</label>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="col-12">
+                        <h6 class="sub-title">Localização</h6>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                        {{form_tree.latitude}}
+                        <label for="floatingLatitude">Latitude</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            {{form_tree.longitude}}
+                            <label for="floatingLongitude">Longitude</label>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form><!-- End floating Labels Form -->
+
+            </div>
+          </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Mapa</h5>
+              <div id="map"></div>
+            </div>
+        </div>
+      </div>
+    </div>
+</section>
+
+
+
+<script>
+    {% if tree %}
+        var latString = parseFloat('{{tree.latitude}}');
+        var lngString = parseFloat('{{tree.longitude}}');
+    {% else %}
+        var latString = parseFloat("-23.5505");
+        var lngString = parseFloat("-46.6333");
+    {% endif %}
+
+    // Inicialize o mapa
+    
+    var map = L.map('map').setView([latString, lngString], 13); // Coordenadas de São Paulo, por exemplo
+
+    // Adicione um tile layer (camada de mapa)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Crie um grupo de camadas para os marcadores
+    var markersGroup = L.layerGroup().addTo(map);
+
+    {% if tree %}
+        var initialMarker = L.marker([latString, lngString])
+            .bindPopup('Sua Árvore está aqui!')
+            .openPopup()
+            .addTo(markersGroup);
+    {% endif %}
+
+    // Função para adicionar um marcador ao clicar no mapa
+    function onMapClick(e) {
+        // Remova todos os marcadores do grupo
+        markersGroup.clearLayers();
+
+        // Adicione um novo marcador
+        var newMarker = L.marker(e.latlng)
+            .bindPopup('Sua Árvore está aqui: ' + e.latlng.toString())
+            .openPopup()
+            .addTo(markersGroup);
+
+        // Atualize os campos de latitude e longitude
+        document.getElementById('id_latitude').value = e.latlng.lat;
+        document.getElementById('id_longitude').value = e.latlng.lng;
+    }
+
+    // Adicione o evento de clique ao mapa
+    map.on('click', onMapClick);
+
+    // Função para atualizar o marcador com base nos campos de entrada
+    function updateMarker() {
+        var lat = parseFloat(document.getElementById('id_latitude').value);
+        var lng = parseFloat(document.getElementById('id_longitude').value);
+
+        // Verifique se ambos os campos estão preenchidos e são números válidos
+        if (!isNaN(lat) && !isNaN(lng)) {
+            // Remova todos os marcadores do grupo
+            markersGroup.clearLayers();
+
+            // Adicione um novo marcador
+            var newMarker = L.marker([lat, lng])
+                .bindPopup('Sua Árvore está aqui: [' + lat + ', ' + lng + ']')
+                .openPopup()
+                .addTo(markersGroup);
+
+            // Centralize o mapa no novo marcador
+            map.setView([lat, lng], 26);
+        }
+    }
+
+    // Adicione ouvintes de evento 'blur' aos campos de entrada
+    document.getElementById('id_latitude').addEventListener('input', updateMarker);
+    document.getElementById('id_longitude').addEventListener('input', updateMarker);
+</script>
+
+
+{% endblock %}

@@ -33,7 +33,9 @@ SITE_ID=2
 # Application definition
 
 INSTALLED_APPS = [
+    'dal',
     'home',
+    'dal_select2',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
