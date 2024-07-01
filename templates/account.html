@@ -1,0 +1,214 @@
+{% extends "partials/base.html" %} {% load static %} 
+{% block title %}Conta - Trees Everywhere{% endblock %}
+{% block content %}
+
+<!-- CSS do Bootstrap -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+
+<!-- CSS do Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+<!-- JavaScript do Leaflet -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+    .sub-title {
+        padding: 20px 0 15px 0;
+        font-size: 18px;
+        font-weight: 500;
+        color: #012970;
+        font-family: "Poppins", sans-serif;
+    }
+
+    #map-set {
+            height: 600px;
+            width: 100%;
+        }
+</style>
+
+<div class="pagetitle">
+  <h1>Conta</h1>
+
+</div>
+
+
+<section class="section">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">{{account.name}}</h5>
+
+              <ul class="nav nav-tabs nav-tabs-bordered">
+                <li class="nav-item">
+                  <button
+                    id="overview-button"
+                    class="nav-link"
+                    data-bs-toggle="tab"
+                    data-bs-target="#profile-overview"
+                  >
+                    Geral
+                  </button>
+                </li>
+    
+                <li class="nav-item">
+                  <button
+                    class="nav-link"
+                    data-bs-toggle="tab"
+                    data-bs-target="#profile-users"
+                  >
+                    Usuários
+                  </button>
+                </li>
+
+                <li class="nav-item">
+                    <button
+                      class="nav-link active"
+                      data-bs-toggle="tab"
+                      data-bs-target="#profile-maps"
+                    >
+                      Mapas
+                    </button>
+                </li>    
+              </ul>
+              <div class="tab-content pt-2">
+
+                <div class="tab-pane fade  profile-overview" id="profile-overview">
+                    <br>
+                    <a href="{% url 'register-planted-tree' %}">
+                      <button class="btn btn-primary btn-sm" title="Add Tree" style="color: white;"> 
+                        <i class="bi bi-clipboard-plus-fill"></i> Registrar Árvore
+                      </button>
+                    </a>
+                    
+                    <hr>
+                    <div class="row mb-3">
+                      {% if account.trees_list %}
+                      <p><strong>{{account.len_trees}} árvore(s) registrada(s).</strong></p>
+                      
+                      <table class="table table-striped">
+                        <thead>
+                          <tr>
+                            <th scope="col">#ID</th>
+                            <th scope="col">Espécie</th>
+                            <th scope="col">Usuário</th>
+                            <th scope="col">Data Plantio</th>
+                            <th scope="col">Idade</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for arvore in account.trees_list %}
+                          <tr>
+                            <th scope="row">{{arvore.id}}</th>
+                            <td>{{arvore.tree.scientific_name}}</td>
+                            <td>{{arvore.user.profile.name_templ}}</td>
+                            <td>{{arvore.planted_at_templ}}</td>
+                            <td>{{arvore.age}}</td>
+                          </tr>
+                          {% endfor %}
+      
+                        </tbody>
+                      </table>
+                      {% else %}
+                        <p><i>Nenhuma árvore registrada.</i></p>
+                      {% endif %}
+                    </div>
+                    </div>
+    
+                <div class="tab-pane fade  profile-overview" id="profile-users">
+                    <br>
+
+                    <div class="row mb-3">
+                        {% if account.members %}
+                        <p><strong>{{account.len_members}} usuário(s) associado(s).</strong></p>
+                        
+                        <table class="table table-striped">
+                        <thead>
+                            <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Nome</th>
+                            <th scope="col">Árvores Plantadas</th>
+                            <th scope="col">País</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in account.members %}
+                            <tr>
+                            <th scope="row"><img src="{% if member.profile.get_profile_photo %}{{member.profile.get_profile_photo}}{% else %}{% static 'assets/img/emptyProfile.png' %}{% endif %}" alt="Profile" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;"></th>
+                            <td>{{member.profile.name_templ}}</td>
+                            <td>{{member.profile.len_trees}} árvores</td>
+                            <td>{{member.profile.country}}</td>
+                            </tr>
+                            {% endfor %}
+        
+                        </tbody>
+                        </table>
+                        {% else %}
+                        <p><i>Nenhuma usuário associado.</i></p>
+                        {% endif %}
+                    </div>
+                    </div>
+
+                <div class="tab-pane show active fade pt-3" id="profile-maps">
+                    <!-- Maps -->
+                    <h5 class="sub-title">Mapa de Árvores Registradas pelos Usuários</h5>
+                    <div id="map-set"></div>
+                    <!-- End Maps -->
+                    </div>
+          
+
+              </div>
+              
+            </div>
+        </div>
+      </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Verifique se há árvores plantadas e defina as coordenadas iniciais
+        {% if account.trees_list %}
+            var latString = parseFloat('{{ account.trees_list.0.latitude }}');
+            var lngString = parseFloat('{{ account.trees_list.0.longitude }}');
+            var zoom = 13
+        {% else %}
+            var latString = parseFloat("-23.5505");
+            var lngString = parseFloat("-46.6333");
+            var zoom = 4
+        {% endif %}
+  
+        // Inicialize o mapa
+        var map = L.map('map-set').setView([latString, lngString], zoom); // Coordenadas de São Paulo, por exemplo
+  
+        // Adicione um tile layer (camada de mapa)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+  
+        // Crie um grupo de camadas para os marcadores
+        var markersGroup = L.layerGroup().addTo(map);
+  
+        // Adicione marcadores para cada árvore plantada
+        {% if account.trees_list %}
+            {% for tree in account.trees_list %}
+                var lat = parseFloat('{{ tree.latitude }}');
+                var lng = parseFloat('{{ tree.longitude }}');
+                var marker = L.marker([lat, lng])
+                    .bindPopup('{{ tree.description }} está aqui!')
+                    .addTo(markersGroup);
+            {% endfor %}
+        {% endif %}
+  
+        // Garantir que o mapa seja redimensionado corretamente
+        setTimeout(function() {
+            map.invalidateSize();
+            const overviewButton = document.getElementById('overview-button');
+            overviewButton.click();
+        }, 100);
+  
+  
+    });
+  </script>
+
+{% endblock %}

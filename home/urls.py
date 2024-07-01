@@ -10,6 +10,6 @@ urlpatterns = [
     path('environment/profile/', views.profile, name='profile'),
     path('environment/profile/register/plantedtree', views.edit_planted_tree, name='register-planted-tree'),
     path('environment/profile/edit/plantedtree/<int:id>', views.edit_planted_tree, name='edit-planted-tree'),
-    path('environment/account/<int:id>', views.edit_planted_tree, name='register-planted-tree'),
+    path('environment/account/<int:id>', views.account_view, name='account'),
     path('logout/', views.quick_logout, name='quick_logout'),
 ]

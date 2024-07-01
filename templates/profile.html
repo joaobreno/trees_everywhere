@@ -328,7 +328,7 @@
                     {% for conta in accounts %}
                     <tr>
                       <th scope="row">{{conta.id}}</th>
-                      <td><a href="">{{conta.name}}</a></td>
+                      <td><a href="{% url 'account' conta.id %}">{{conta.name}}</a></td>
                       <td>{{conta.len_trees}} árvores</td>
                       <td>{{conta.len_members}} membros</td>
                     </tr>

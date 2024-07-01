@@ -22,7 +22,7 @@ class Account(models.Model):
         return len(members)
     
     def trees_list(self):
-        return PlantedTree.objects.filter(user__accounts=self)
+        return PlantedTree.objects.filter(user__accounts=self).order_by('-planted_at')
     
     def len_trees(self):
         return len(self.trees_list())
@@ -100,3 +100,16 @@ class Profile(models.Model):
         else:
             return False
             
+    def get_profile_photo(self):
+        if self.profile_photo:
+            return self.profile_photo.url
+        elif self.google_account:
+            return self.google_account.extra_data['picture']
+        else:
+            return None
+        
+    def trees_list(self):
+        return PlantedTree.objects.filter(user=self.user).order_by('-planted_at')
+    
+    def len_trees(self):
+        return len(self.trees_list())

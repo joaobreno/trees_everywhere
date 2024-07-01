@@ -147,7 +147,14 @@ def edit_planted_tree(request, context_dict, id=None):
 @login_required(login_url='login')
 @profile_user
 def account_view(request, context_dict, id):
-    return render(request, 'account-home.html', context_dict)
+    try:
+        account = get_object_or_404(Account, pk=id) if id else None
+    except Exception as e:
+        return render(request, 'error-page.html', {'title': 'Not Found 404',
+                                                   'code': '404',
+                                                   'message': 'Essa página não existe!'})
+    context_dict['account'] = account
+    return render(request, 'account.html', context_dict)
 
 
 def quick_logout(request):
