@@ -140,7 +140,7 @@ def edit_planted_tree(request, context_dict, id=None):
             if tree.user != request.user:
                 return render(request, 'error-page.html', {'title': 'Forbidden 403',
                                                            'code': '403',
-                                                           'message': 'Você não pode acessa essa página!'})
+                                                           'message': 'Você não pode acessar essa página!'})
         else:
             form_tree = RegisterPlantedTreeForm()
     context_dict['form_tree'] = form_tree
@@ -157,6 +157,12 @@ def account_view(request, context_dict, id):
         return render(request, 'error-page.html', {'title': 'Not Found 404',
                                                    'code': '404',
                                                    'message': 'Essa página não existe!'})
+    members = account.members()
+    if request.user not in members:
+        return render(request, 'error-page.html', {'title': 'Forbidden 403',
+                                                           'code': '403',
+                                                           'message': 'Você não pode acessar essa página!'})
+    
     context_dict['account'] = account
     return render(request, 'account.html', context_dict)
 

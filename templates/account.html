@@ -139,7 +139,7 @@
                             <th scope="row"><img src="{% if member.profile.get_profile_photo %}{{member.profile.get_profile_photo}}{% else %}{% static 'assets/img/emptyProfile.png' %}{% endif %}" alt="Profile" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;"></th>
                             <td>{{member.profile.name_templ}}</td>
                             <td>{{member.profile.len_trees}} árvores</td>
-                            <td>{{member.profile.country}}</td>
+                            <td>{% if member.profile.country %}{{member.profile.country}}{% endif %}</td>
                             </tr>
                             {% endfor %}
         
