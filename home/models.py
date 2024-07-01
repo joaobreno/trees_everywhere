@@ -13,6 +13,19 @@ class Account(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def members(self):
+        return self.users.all()
+
+    def len_members(self):
+        members = self.users.all()
+        return len(members)
+    
+    def trees_list(self):
+        return PlantedTree.objects.filter(user__accounts=self)
+    
+    def len_trees(self):
+        return len(self.trees_list())
 
 class Tree(models.Model):
     name = models.CharField(max_length=255)

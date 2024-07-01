@@ -80,17 +80,26 @@ def profile(request, context_dict):
     else:
         profile_form = ProfileForm(profile=context_dict['profile'])
         
-    trees_registered = PlantedTree.objects.filter(user=request.user)
+    trees_registered = PlantedTree.objects.filter(user=request.user).order_by('-planted_at')
+    accounts = request.user.accounts.all()
+
     context_dict['profile_form'] = profile_form
     context_dict['planted_trees'] = trees_registered
     context_dict['number_trees'] = len(trees_registered)
+    context_dict['accounts'] = accounts
+    context_dict['number_accounts'] = len(accounts)
     return render(request, 'profile.html', context_dict)
 
 
 @login_required(login_url='login')
 @profile_user
 def edit_planted_tree(request, context_dict, id=None):
-    tree = get_object_or_404(PlantedTree, pk=id) if id else None
+    try:
+        tree = get_object_or_404(PlantedTree, pk=id) if id else None
+    except Exception as e:
+        return render(request, 'error-page.html', {'title': 'Not Found 404',
+                                                   'code': '404',
+                                                   'message': 'Essa página não existe!'})
     if request.method == 'POST':
         form_tree = RegisterPlantedTreeForm(request.POST)
         if form_tree.is_valid():
@@ -125,13 +134,20 @@ def edit_planted_tree(request, context_dict, id=None):
         if tree:
             form_tree = RegisterPlantedTreeForm(tree=tree)
             if tree.user != request.user:
-                messages.error(request, 'Você não pode editar esta árvore!')
-                return redirect('profile')
+                return render(request, 'error-page.html', {'title': 'Forbidden 403',
+                                                           'code': '403',
+                                                           'message': 'Você não pode acessa essa página!'})
         else:
             form_tree = RegisterPlantedTreeForm()
     context_dict['form_tree'] = form_tree
     context_dict['tree'] = tree
     return render(request, 'register-plantedtree.html', context_dict)
+
+
+@login_required(login_url='login')
+@profile_user
+def account_view(request, context_dict, id):
+    return render(request, 'account-home.html', context_dict)
 
 
 def quick_logout(request):

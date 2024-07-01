@@ -29,7 +29,8 @@
 
   <!-- Template Main CSS File -->
   <link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
-  <link href="{% static 'assets/css/style2.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/css/preloader.css' %}" rel="stylesheet">
+
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   
 
@@ -44,25 +45,53 @@
   ======================================================== -->
 </head>
 
+<style>
+  body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+  }
+  .footer {
+      margin-top: auto;
+
+      text-align: center;
+      padding: 20px 0;
+  }
+
+</style>
+
 <body style="min-width: 1080px;">
+
+<div id="preloader-active">
+  <div class="preloader d-flex align-items-center justify-content-center">
+      <div class="preloader-inner position-relative">
+          <div class="preloader-circle"></div>
+          <div class="preloader-img pere-text">
+              <img src="{% static 'assets_lp/img/logo/loder.png' %}" alt="">
+          </div>
+      </div>
+  </div>
+</div>
 
   <!-- ======= Header ======= -->
   <header id="header" class="header fixed-top d-flex align-items-center">
 
     <div class="d-flex align-items-center justify-content-between">
-      <a href="index.html" class="logo d-flex align-items-center">
+      <a href="{% url 'index' %}" class="logo d-flex align-items-center">
         <img src="{% static 'assets_lp/img/logo/loder.png' %}" alt="">
         <span class="d-none d-lg-block">Trees Everywhere</span>
       </a>
       <i class="bi bi-list toggle-sidebar-btn"></i>
     </div><!-- End Logo -->
 
-    <div class="search-bar">
+    <!-- <div class="search-bar">
       <form class="search-form d-flex align-items-center" method="POST" action="#">
         <input type="text" name="query" placeholder="Search" title="Enter search keyword">
         <button type="submit" title="Search"><i class="bi bi-search"></i></button>
       </form>
-    </div><!-- End Search Bar -->
+    </div> -->
+    <!-- End Search Bar -->
 
     <nav class="header-nav ms-auto">
       <ul class="d-flex align-items-center">
@@ -441,7 +470,7 @@
       <li class="nav-heading">Pages</li>
 
       <li class="nav-item">
-        <a class="nav-link " href="users-profile.html">
+        <a class="nav-link collapsed" href="users-profile.html">
           <i class="bi bi-person"></i>
           <span>Profile</span>
         </a>
@@ -532,6 +561,13 @@
   
   <!-- MENSAGENS DE NOTIFICAÇÃO -->
   <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Verifica se o elemento .toggle-sidebar-btn existe
+        const toggleBtn = document.querySelector('.toggle-sidebar-btn');
+
+        toggleBtn.click();
+    });
+
     {% if messages %}
       {% for message in messages %}
           noficationMessage('{{ message.level }}','{{ message }}')

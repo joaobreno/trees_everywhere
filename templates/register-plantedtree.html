@@ -1,14 +1,14 @@
 {% extends "partials/base.html" %} {% load static %} 
-{% block title %}Cadastrar Árvore - Trees Everywhere{% endblock %}
+{% block title %}{% if tree %}Editar{% else %}Cadastrar{% endif %} Árvore - Trees Everywhere{% endblock %}
 {% block content %}
 
-<!-- Inclua o CSS do Bootstrap -->
+<!-- CSS do Bootstrap -->
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
 
-<!-- Inclua o CSS do Leaflet -->
+<!-- CSS do Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
-<!-- Inclua o JavaScript do Leaflet -->
+<!-- JavaScript do Leaflet -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
@@ -110,14 +110,16 @@
     {% if tree %}
         var latString = parseFloat('{{tree.latitude}}');
         var lngString = parseFloat('{{tree.longitude}}');
+        var zoom = 50
     {% else %}
         var latString = parseFloat("-23.5505");
         var lngString = parseFloat("-46.6333");
+        var zoom = 4
     {% endif %}
 
     // Inicialize o mapa
     
-    var map = L.map('map').setView([latString, lngString], 13); // Coordenadas de São Paulo, por exemplo
+    var map = L.map('map').setView([latString, lngString], zoom); // Coordenadas de São Paulo, por exemplo
 
     // Adicione um tile layer (camada de mapa)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

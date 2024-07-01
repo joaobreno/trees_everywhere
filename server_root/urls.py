@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.conf.urls import handler404
+from django.shortcuts import render
 
 urlpatterns = [
     path('', include('home.urls')),
@@ -27,3 +29,11 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    
+
+def custom_page_not_found_view(request, exception):
+    return render(request, 'error-page.html', {'title': 'Not Found 404',
+                                               'code': '404',
+                                               'message': 'Essa página não existe!'})
+
+handler404 = custom_page_not_found_view

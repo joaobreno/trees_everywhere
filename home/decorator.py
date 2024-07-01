@@ -40,11 +40,13 @@ def profile_user(func):
                 try:
                     return func(request, context_dict, *args, **kwargs)
                 except Http404 as e:
-                    
-                    return render('404.html')
+                    return render(request, 'error-page.html', {'title': 'Not Found 404',
+                                                               'code': '404',
+                                                               'message': 'Essa página não existe!'})
                 except Exception as e:
-
-                    return render('500.html')
+                    return render(request, 'error-page.html', {'title': 'Error 500',
+                                                               'code': '500',
+                                                               'message': 'Houve algum erro na requisição!'})
 
         else:
             logout(request)
